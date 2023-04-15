@@ -211,6 +211,9 @@ namespace Oxide.Plugins
             [JsonProperty(PropertyName = "TPR Enabled")]
             public bool TPREnabled { get; set; } = true;
 
+            [JsonProperty(PropertyName = "TPR Block Enabled")]
+            public bool TPRBlockEnabled { get; set; } = true;
+
             [JsonProperty(PropertyName = "Strict Foundation Check")]
             public bool StrictFoundationCheck { get; set; } = false;
 
@@ -369,6 +372,9 @@ namespace Oxide.Plugins
 
             [JsonProperty(PropertyName = "Use Friends")]
             public bool UseFriends { get; set; } = true;
+
+            [JsonProperty(PropertyName = "Use Blocked Users")]
+            public bool UseBlockedUsers { get; set; } = true;
 
             [JsonProperty(PropertyName = "Use Clans")]
             public bool UseClans { get; set; } = true;
@@ -962,6 +968,7 @@ namespace Oxide.Plugins
                 {"CantTeleportToSelf", "You can't teleport to yourself!"},
                 {"CantTeleportPlayerToSelf", "You can't teleport a player to himself!"},
                 {"CantTeleportPlayerToYourself", "You can't teleport a player to yourself!"},
+                {"BlockedTeleportTarget", "You can't teleport to user: \"{0}\", they have you teleport blocked!"},
                 {"TeleportPendingTPC", "You can't initiate another teleport while you have a teleport pending! Use /tpc to cancel this."},
                 {"TeleportPendingTarget", "You can't request a teleport to someone who's about to teleport!"},
                 {"LocationExists", "A location with this name already exists at {0}!"},
@@ -2640,7 +2647,7 @@ namespace Oxide.Plugins
                 teleporting.Remove(userID);
 
                 if (teleporting.Count == 0) Unsubscribe(nameof(OnPlayerViolation));
-            });            
+            });
         }
 
         void OnPlayerDisconnected(BasePlayer player)
@@ -3020,7 +3027,7 @@ namespace Oxide.Plugins
                     PrintMsgL(player, "AdminTPCoordinates", player.transform.position);
                     Puts(_("LogTeleport", null, player.displayName, player.transform.position));
                     break;
-                case 4:                    
+                case 4:
                     target = FindPlayersSingle(args[0], player);
                     if (target == null) return;
                     if (permission.UserHasPermission(player.UserIDString, PermDisallowTpToMe))
@@ -4079,7 +4086,6 @@ namespace Oxide.Plugins
 
                 target = targets[0];
             }
-
             if (target == player)
             {
 #if DEBUG
@@ -4229,6 +4235,14 @@ namespace Oxide.Plugins
                 if (err != null)
                 {
                     PrintMsgL(player, "TPBlockedItem", err);
+                    return;
+                }
+            }
+            if (config.Settings.TPRBlockEnabled)
+            {
+                if (IsBlockedUser(target.userID, player.userID))
+                {
+                    PrintMsgL(player, $"You can't teleport to user: \"{user.Name}\", they have you teleport blocked!");
                     return;
                 }
             }
@@ -4455,7 +4469,9 @@ namespace Oxide.Plugins
             if (args.Length == 1)
             {
                 var key = $"TPHelp{args[0].ToLower()}";
+                PrintMsgL(player, key);
                 var msg = _(key, player);
+                PrintMsgL(player, msg);
                 if (key.Equals(msg))
                     PrintMsgL(player, "InvalidHelpModule");
                 else
@@ -5949,7 +5965,7 @@ namespace Oxide.Plugins
 #endif
             return true;
         }
-        
+
         private bool IsInsideEntity(Vector3 a)
         {
             bool faces = Physics.queriesHitBackfaces;
@@ -6128,6 +6144,25 @@ namespace Oxide.Plugins
             return false;
         }
 
+        bool IsBlockedUser(ulong playerid, ulong ownerid)
+        {
+            if (config.Home.UseBlockedUsers && Friends != null && Friends.IsLoaded)
+            {
+#if DEBUG
+        Puts("Checking Blocked Users...");
+#endif
+                var fr = Friends?.CallHook("AreBlockedUsers", playerid, ownerid);
+                if (fr != null && fr is bool && (bool)fr)
+                {
+#if DEBUG
+            Puts("  IsBlockedUser: true based on Friends plugin");
+#endif
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // Check that we are near the middle of a block.  Also check for high wall overlap
         private bool ValidBlock(BaseEntity entity, Vector3 position)
         {
@@ -6207,7 +6242,7 @@ namespace Oxide.Plugins
                     }
                 }
             }
-#if DEBUG            
+#if DEBUG
             if (entities.Count == 0)
             {
                 Puts("  GetFoundation() none found.");
