@@ -35,7 +35,7 @@ namespace Oxide.Plugins
     class NTeleportation : RustPlugin
     {
         [PluginReference]
-        private Plugin Clans, Economics, ServerRewards, Friends, CompoundTeleport, ZoneManager, NoEscape, PopupNotifications;
+        private Plugin Clans, Economics, ServerRewards, Friends, CompoundTeleport, ZoneManager, NoEscape, PopupNotifications, BlockUsers;
 
         private Dictionary<string, BasePlayer> _ids = new Dictionary<string, BasePlayer>();
         private Dictionary<BasePlayer, string> _players = new Dictionary<BasePlayer, string>();
@@ -6146,16 +6146,16 @@ namespace Oxide.Plugins
 
         bool IsBlockedUser(ulong playerid, ulong ownerid)
         {
-            if (config.Home.UseBlockedUsers && Friends != null && Friends.IsLoaded)
+            if (config.Home.UseBlockedUsers && BlockUsers != null && BlockUsers.IsLoaded)
             {
 #if DEBUG
         Puts("Checking Blocked Users...");
 #endif
-                var fr = Friends?.CallHook("AreBlockedUsers", playerid, ownerid);
+                var fr = BlockUsers?.CallHook("AreBlockedUsers", playerid, ownerid);
                 if (fr != null && fr is bool && (bool)fr)
                 {
 #if DEBUG
-            Puts("  IsBlockedUser: true based on Friends plugin");
+            Puts("  IsBlockedUser: true based on BlockUsers plugin");
 #endif
                     return true;
                 }
