@@ -5,7 +5,6 @@ The uploaded first copy will be the original copy of NTeleporation, and the edit
 
 # NTeleportationFriends.cs
 # NO LONGER UPDATED DO NOT USE
-# NO LONGER UPDATED DO NOT USE
 > __Warning__: This code ***is*** different than both of the other codes, and ***CANNOT*** be used interchangeably with the other two NTeleporatation implementations.
 
 The plugin titled "NTeleportationFriends.cs" is just a slight change in the code from NTeleportation plugin that allows you to have blocked users not being able to teleport to you. This comes from my [Friends-or-BlockedUsers-Plugin](https://github.com/ViolationHandler-exe/Friends-or-BlockedUsers-Plugin) plugin which is a modified version of the [Friends plugin](https://umod.org/plugins/friends) made by [MrBlue](https://umod.org/user/MrBlue) at uMod.
@@ -18,7 +17,6 @@ The plugin titled "NTeleportationBlockUsers.cs" is just a slight change in the c
 
 
 # NTeleportationIgnore.cs
-# NO LONGER UPDATED DO NOT USE
 # NO LONGER UPDATED DO NOT USE
 > __Warning__: This code ***is*** different than both of the other codes, and ***CANNOT*** be used interchangeably with the other two NTeleporatation implementations.
 
