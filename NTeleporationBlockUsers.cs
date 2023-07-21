@@ -4316,7 +4316,7 @@ namespace Oxide.Plugins
 
             if (IsBlockedUser(target.userID, player.userID))
             {
-                PrintMsgL(player, "BlockedTeleportTarget");
+                PrintMsgL(player, "BlockedTeleportTarget", target.displayName);
                 return;
             }
             TeleportData tprData;
